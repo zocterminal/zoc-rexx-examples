@@ -1,0 +1,34 @@
+/*REXX Sample: SendCommandsToRouter.zrx
+
+  Read lines from a file and send them to the remote host.  
+  Wait for a prompt after each line/command.
+
+  This could for example be used to send a canned set of 
+  commands to a router.
+*/
+
+-- the name of the file to read (see also ZocAskFilename)
+-- one command per line
+file= "z:\input.txt"
+
+-- max timeout (sec.) between a command and the next command 
+-- prompt from the router
+CALL ZocTimeout 20
+
+    
+DO FOREVER
+    -- read next line, handle EOF and skip empty lines
+    ln= LINEIN(file)
+    IF STREAM(file, "S")\="READY" THEN LEAVE
+    IF ln=="" THEN ITERATE
+    
+    -- process the line read from file (ln) here.  send the 
+    -- content of the line to the router with an ^M (enter) 
+    -- and wait for the next command prompt
+    CALL ZocSend ln||"^M"
+
+    ret= ZocWait("enter command>")
+    IF ret==640 THEN LEAVE -- prompt not received in given time
+END
+
+EXIT

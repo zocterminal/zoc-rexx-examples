@@ -1,0 +1,46 @@
+/* REXX: 
+   This example logs on to a SSH server to check for new mail.  
+   If there is mail for the user, a message-box is displayed */
+
+
+-- set variables for SSH host login
+hostip= "users.hogwarts.edu"
+username= harryp"
+password= "alohomora"
+
+-- make a SSH connection to the host in the form user:pass@host
+CALL ZocSetDevice "Secure Shell"
+CALL ZocConnect username||":"||password||"@"||hostip
+
+-- if login works, we should see the "Last login" 
+-- message within 10 seconds (640 means timeout on a wait)
+CALL ZocTimeout 10
+x= ZocWait("Last login")
+IF x\=640 THEN DO 
+	-- we are in, so wait for a prompt (assuming the prompt ends with "$")
+	CALL ZocWait "$"
+
+	-- send the mail command
+	CALL ZocSend "mail^M"
+
+	-- skip the echo from our mail command
+	CALL ZocWaitline
+
+	-- wait for one more line of output and grab it 
+	CALL ZocWaitline
+	themail= ZocLastline()
+
+	-- logout and disconnect
+	CALL ZocSend "exit^M"
+	CALL ZocDelay 1
+	CALL ZocDisconnect
+	
+	
+	/* if the reply from mail was different from "No mail for ..." 
+	   then display a message box to the user */
+	IF LEFT(themail,7)\="No mail" THEN DO 
+		CALL ZocMsgBox themail
+	END
+END
+
+

@@ -1,0 +1,62 @@
+/*REXX*/
+
+/* 
+ * This sample demonstrates how to initiate a telnet connection.
+ * (logging on/off at a SMTP server)
+ */
+
+/* uncomment this to see each command as it executes
+TRACE A
+*/
+
+/* init these fields in case of failure */
+answer1= "<none>"
+answer2= "<none>"
+
+
+/* Telnet connects are asynchronous but sometimes too fast to catch
+ * the connect message.  Just wait with timeout for the first useful
+ * data from the host (usually a prompt or soemthing).
+ */
+
+Call ZocSetDevice "Telnet"
+Call ZocConnect "pop.gmail.com:25"
+
+Call ZocTimeout 20 /* max 20 seconds for ZocWait */
+x= ZocWait("220 ") /* wait for initial greeting */
+IF x=640 THEN SIGNAL theEnd  /* 640 means timeout */
+
+
+/* 
+ * wait for the rest of output (SMTP greeting) and store it 
+ */
+x= ZocWaitLine()
+if x=640 THEN SIGNAL theEnd /* 640 means timeout */
+answer1= ZocLastLine()
+
+
+/* 
+ * send a command and get 1 line of response 
+ * (see the GetCommandOutput.zrx for multi line responses)
+ */
+Call ZocSend "HELO localhost^M^J"
+x= ZocWaitLine()
+if x=640 THEN SIGNAL theEnd /* 640 means timeout */
+answer2= ZocLastLine()
+
+
+/* 
+ * be nice and log off 
+ */
+Call ZocSend "QUIT^M^J"
+Call ZocWait "DISCONNECTED" /* wait for ZOC's DISCONNECT message */
+
+
+/* we arrive here either after sending quit or through SIGNAL theEnd */
+theEnd:
+
+SAY
+SAY "Answer 1: "||answer1
+SAY "Answer 2: "||answer2
+
+EXIT

@@ -1,0 +1,32 @@
+/* REXX SAMPLE TO PRINT TO AN ATTACHED PRINTER */
+
+/* REXX does not support printing directly.  However, if you are using 
+   the VT100, VT102, VT220 or Linux emulations, output can be redirected
+   to a printer, by using the VT-PRINT-ON and VT-PRINT-OFF sequences.
+
+   After printing is turned on, all screen output will be redirected
+   to the attached printer 
+*/
+
+/* one character decimal 27 (or hex 1B) */
+esc= D2C(27) 
+
+/* two VTxxx sequences */
+vtprton= esc||"[5i"
+vtprtoff= esc||"[4i"
+
+CALL ZocWrite vtprton
+
+Call ZocWrite "Printing ..."
+
+DO i=1 to 10 
+
+	SAY COPIES("  ", i)||"Hello World"
+
+END
+
+CALL ZocWrite vtprtoff
+
+Call ZocWrite " done!"
+
+

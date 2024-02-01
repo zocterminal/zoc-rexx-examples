@@ -1,4 +1,4 @@
-/* REXX: first sample without all the explanations */
+/* REXX: first sample without all the blurp */
 
 -- clear the screen
 CALL ZocCls   

@@ -1,0 +1,42 @@
+/* REXX: Issue a dig-command to a Unix system and 
+         store the full (multiline) answer in an array */
+
+-- send the command 
+CALL ZocSend "dig emtec.com^M"
+
+
+-- max wait time per line of answer 10 sec.
+CALL ZocTimeout 10
+
+
+--
+-- read text line by line until a line contains ";; MSG" 
+--
+DO x=1 TO 999 
+    -- wait for next line of output (otherwise rc 640)
+    rc= ZocWaitLine()
+
+    -- if none was received within the 10 sec timeout, then end the loop
+    IF rc=640 THEN LEAVE
+
+    -- remember all lines 
+    lines.x= ZocLastline()
+    lines.0= x
+
+    -- end loop when that line started with ";; MSG" 
+    IF LEFT(lines.x, 6)=";; MSG" THEN LEAVE
+END 
+
+
+-- a small pause 
+CALL ZocDelay 1
+SAY ""
+
+
+-- show all lines again 
+DO y=1 TO lines.0
+    SAY "STORED LINE "||y||": "||lines.y
+END
+
+EXIT
+

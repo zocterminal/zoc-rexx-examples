@@ -1,0 +1,55 @@
+/* REXX: Send something to the remote host and wait for a reply */
+
+
+-- prepare a receive buffer that stores all input from now until the 
+-- next call to ZocReceiveBuf (max 1000 characters should be enough)
+CALL ZocReceiveBuf 1000
+
+
+-- Send tty <enter> 
+-- (assuming you are connected to a Linux shell this will output your /dev/tty)
+CALL ZocSend "tty^M"
+
+
+-- set a max waiting time of 3 seconds for the ZocWait command (below) 
+CALL ZocTimeout 3
+
+
+
+-- wait for the linux to answer to the tty command, usually /dev/tty...
+-- followed by the next command prompt (the prompt should end with "$" and 
+-- that's what we wait for, an rc of 640 indicates that it did not appear) 
+rc= ZocWait("$")
+IF rc=640 THEN DO 
+    CALL ZocMsgBox "Problem: The $-prompt did not reappear within 3 seconds"
+    SIGNAL endit
+END
+
+
+
+-- now the receive buffer (see above) contains three lines the echo of the 
+-- "tty" command, the output from the tty command and the prompt 
+-- i.e. "tty
+--       /dev/ttyxyz
+--       whatever-the-prompt$ "
+-- assign that to the variable databuf
+databuf= ZocReceiveBuf(0)
+
+
+-- now simply use the ZocString function to extract the 2nd line from the buffered data
+thetty= ZocString("LINE", databuf, 2)
+
+
+
+-- ZocLastLine() grabs the data received during ZocWaitLine
+CALL ZocMsgBox "Your session is on "||thetty||"!"
+
+
+
+-- the 'SIGNAL endit' commands above jump directly to this label
+endit: 
+
+
+-- Done 
+EXIT
+

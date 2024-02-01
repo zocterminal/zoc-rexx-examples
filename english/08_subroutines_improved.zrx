@@ -1,0 +1,60 @@
+/* REXX */
+
+
+Call ZocCls
+
+
+-- This program lets the user enter a value.  This time we do it 
+-- in a function that returns the entered number.  The retured
+-- number is then stored in a variable named 'value'
+
+value= ENTERIT()
+
+
+
+-- Then another function checks if the value can be divided by any 
+-- other number. 
+
+IF HAS_DIVIDERS(value)=0 THEN DO 
+    SAY value||" is a prime number!"
+END
+ELSE DO 
+    SAY value||" is not a prime number!"
+END
+
+
+EXIT
+
+
+
+
+/************************************************************************/
+/* Below is a subroutine which reads a number and returns it as a       */
+/* function result using RETURN (this is a better version of sample 06) */
+/************************************************************************/
+ENTERIT: PROCEDURE
+    n= ZocAsk("Please enter a number (up to 1000)")
+    RETURN n
+
+
+
+/**********************************************************************/
+/* Below is a function.  The word PROCEDURE was added, to give it a   */
+/* local variable pool.  Exchange of data with the calling program is */
+/* done through argument passing and zocresult return mechanism.      */
+/**********************************************************************/
+HAS_DIVIDERS: PROCEDURE 
+    /* Pick up first (and only) argument */
+    z= ARG(1)
+    zocresult= 0
+
+    DO i=2 TO z-1
+        IF (z//i)=0 THEN DO
+            /* leave loop if i is a divider of z */
+            zocresult= 1
+            LEAVE i
+        END 
+    END
+
+    RETURN zocresult
+

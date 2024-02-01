@@ -1,0 +1,53 @@
+/* REXX */
+
+/* Arrays are built by appending a period and an index to a variable name */
+/* Typically the fill size of the array is stored in index 0              */
+
+
+fill= 0
+list.0= fill
+
+
+/* Build a list of 50 prime numbers */
+z= 3
+
+DO WHILE list.0 < 50 
+    IF \ HAS_DIVIDERS(z) THEN DO  /* IF NOT ... THEN */
+	-- increase list fill count
+	fill= fill + 1
+        list.0= fill
+
+	-- store indexed element to list
+        ind= fill
+        list.ind= z    -- (in most other languages you'd use:  list[ind]= z )
+    END
+
+    z= z+2
+END
+
+/* Output all list elements to screen */
+DO i=1 TO list.0
+    SAY i||". prime number: "||list.i   -- (in most other languages you'd use:  list[i] )
+END
+
+EXIT
+
+
+/* Below is a function.  The word PROCEDURE was added, to give it a     */
+/* local variable pool.  Exchange of data with the calling program is   */
+/* done through argument passing and zocresult return mechanism.           */
+HAS_DIVIDERS: PROCEDURE 
+    /* Pick up first (and only) argument */
+    z= ARG(1)
+    zocresult= 0
+
+    DO i=2 TO z-1
+        IF (z//i)=0 THEN DO
+            /* leave loop if i is a divider of z */
+            zocresult= 1
+            LEAVE i
+        END 
+    END
+
+    RETURN zocresult
+

@@ -1,0 +1,34 @@
+/* REXX: This script demonstrates decision making via the IF command */
+
+CALL ZocCls
+
+
+/* show a nice request window with two choices to the user 
+ * (calling a ZOC-extension, see Help-Menu, "ZOC REXX Commands") 
+ */
+answer= ZocRequest("Do you like ZOC?", "YES", "NO")
+
+
+/* here comes a decision with one alternative 
+ * (see "The REXX Language", Sections "Instructions" and "Operators") 
+ */
+IF answer="##CANCEL##" THEN DO
+    SIGNAL endit    /* jump to the end, the SIGNAL instruction is similar to GOTO in VB */
+END
+
+
+/* below follows a decision with two alternative execution paths
+ */
+IF answer="YES" THEN DO 
+    SAY "Nice to hear that!"
+END
+ELSE DO 
+    /* ANSWER=NO */
+    SAY "You don't like it!  (Are you serious? Maybe "
+    SAY "you got it mixed up with HyperTerminal)"
+END
+
+
+endit:    /* target for the SIGNAL command above */
+EXIT
+

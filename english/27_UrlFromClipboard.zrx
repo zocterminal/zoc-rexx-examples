@@ -1,0 +1,54 @@
+/*REXX*/
+
+/*  Reassemble an url from the clipboard (e.g. when copied from screen)  */
+/*  and call Internet Explorer pointing to it. */
+
+/*  (Sample script from long time user and friend Rich Greenberg) */
+
+true  = (0=0)
+false = (1=0)
+Trace O
+
+http  = 'http://'
+https = 'https://'
+out = ''
+/* Change the following line to use a different browser. */
+browser = "C:\Program Files\Internet Explorer\iexplore.exe"
+
+in = ZocClipboard('READ')
+
+/*
+   Loop thru the input transferring a character
+   at a time filtering out the "naughty" ones.
+*/
+
+in = Strip(in, 'L')
+do j = 1 to length(in)
+   z = substr(in, j, '1')
+   if verify(z,x2c(200a0d3c3e5b5d),'M')           /* "naughty" filter. */
+      then iterate j              /* You may want to tailor this list. */
+      else out = out || z
+   end
+
+/*
+   Add "HTTP" in front if not already there.
+*/
+
+select
+   when left(out, length(http)) = http | left(out, length(http)) = upper(http)
+      then nop
+   when left(out, length(https)) = https | left(out, length(https)) = upper(https)
+      then nop
+   otherwise
+      out = http || out
+end
+
+/*
+    Now send the URL to the browser provided the URL isn't too big.
+*/
+
+if (length(browser) + Length(out)) < 480
+   then Call ZocShell 'start "" "'browser'"' '"'out'"',1
+   else say 'URL: Length of URL is too long for me to handle correctly.'
+
+exit

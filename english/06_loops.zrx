@@ -1,0 +1,52 @@
+/* REXX: This script demonstrates various loop commands */
+
+CALL ZocCls
+
+
+------------------------------------------------------------------------
+-- a simple loop (repeat three times) 
+------------------------------------------------------------------------
+DO 3
+    SAY "ZOC!"
+END 
+
+
+
+------------------------------------------------------------------------
+-- this loop repeats until the user answers YES 
+------------------------------------------------------------------------
+DO UNTIL answer="YES"
+    answer= ZocRequest("Do you like ZOC?", "YES", "NO")
+END 
+
+CALL ZocMsgBox "Glad to hear that!"
+
+
+
+------------------------------------------------------------------------
+-- this loop also repeats until the user answers YES 
+------------------------------------------------------------------------
+DO FOREVER
+    answer= ZocRequest("Do you really like ZOC?", "YES", "NO")
+    IF answer="YES" THEN LEAVE
+END 
+
+CALL ZocMsgBox "Glad to hear that again!"
+
+
+
+------------------------------------------------------------------------
+-- a counting loop (11 iterations with i taking values from 1 to 11)
+------------------------------------------------------------------------
+DO i=1 TO 11 
+    /* if i not dividable by two (see "The REXX Language", Sections "Operators") */
+    IF i//2 \= 0 THEN DO
+        SAY i||": He loves me"
+    END
+    ELSE DO 
+        SAY i||": He loves me not"
+    END
+END
+
+EXIT
+

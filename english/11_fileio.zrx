@@ -1,0 +1,75 @@
+/* REXX 
+** 
+**  This example demonstrates the basic file functions:
+**  (see "The REXX Language", Section "Built In Functions") 
+**
+**  - check for existence of file
+**
+**  - open file for writing 
+**  - write data to file
+**  - close file
+**
+**  - open file for reading 
+**  - read data and check for end of file
+**  - close file
+**
+*/
+
+filepath= ZocFilename("RESOLV", "%USERDESKTOP%")
+filename= ZocFilename("COMBINE", filepath, "RexxSample.txt")
+SAY filename
+
+
+
+/* ------------------------------------------------------------------ */
+
+/* the STREAM(,"C","QUERY EXISTS") function call can be used to check */
+/* if a file exists.                                                  */
+
+IF STREAM(filename, "C", "QUERY EXISTS")\="" THEN DO
+    /* file exists, so delete it */
+    CALL ZocFileDelete(filename)
+END
+
+/* ------------------------------------------------------------------ */
+
+/* the STREAM(,"C","OPEN WRITE") call is used to open a file.         */
+CALL STREAM filename, "C", "OPEN WRITE"
+
+/* the LINEOUT call writes data to a file.  Instead of a file handle, */
+/* the file name is used.                                             */
+
+CALL LINEOUT filename, "THIS IS A LINE OF TEXT"
+CALL LINEOUT filename, "THIS IS SOME MORE TEXT"
+CALL LINEOUT filename, ""
+CALL LINEOUT filename, "MORE STUFF AFTER AN EMPTY LINE"
+
+/* the STREAM call can be used to close a file.                       */
+CALL STREAM filename, "C", "CLOSE"
+
+/* ------------------------------------------------------------------ */
+
+/* now we open the file again and read the data back in via LINEIN    */
+/* function.  End-Of-File is detected via STREAM(,"S") function       */
+
+CALL STREAM filename, "C", "OPEN READ"
+
+DO FOREVER 
+    /* read one line of text */
+    line= LINEIN(filename)
+
+    /* leave if EOF was reached (stream no longer READY) */
+    IF STREAM(filename, "S")\="READY" THEN DO
+        LEAVE
+    END
+
+    /* print line */
+    SAY "->"line
+END
+
+CALL STREAM filename, "C", "CLOSE"
+
+/* ------------------------------------------------------------------ */
+
+EXIT
+

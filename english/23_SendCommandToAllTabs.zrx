@@ -1,0 +1,19 @@
+/*REXX*/
+
+/* Send a text to the sessions in all open tabs */
+
+
+text= ZocAsk("Command to send to all tabs:")
+IF text\="##CANCEL##" THEN DO
+
+  n= ZocSessionTabs("GETCOUNT")
+
+  /* on all tabs */  
+  DO i=0 TO n-1
+    CALL ZocSessionTabs "SEND", i, text||"^M"
+
+    /* some debug output */
+    name= ZocSessionTabs("GETNAME", i)
+    SAY "Sent "||text||" to "||name
+  END
+END 

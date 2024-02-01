@@ -1,0 +1,125 @@
+/* REXX 
+**
+**  This is a non-functional skeleton for creating an autologin 
+**  script. However you might not need it, since simple autologins 
+**  can be achieved without script programming using the autologin 
+**  feature of the phone book.
+**
+**  Scenario:
+**    Let's assume Zaphod Beeblebrox uses the Megadodo bbs on Ursa 
+**    Minor Beta to download new messages and upload the replys that 
+**    he wrote offline. 
+**    This script calls the bbs and eventually tries again until it
+**    gets a CONNECT. Then it goes to the main menu where it downloads
+**    a new mail packet and, if available, uploads Zaphod's replies.
+**
+*/
+
+
+/* Prevent users from accidently dialling long distance to Ursa Minor Beta */
+
+CALL ZocMsgBox "This is a sample file.  You should check it's source code"
+
+really= ""
+yesno= ""
+DO UNTIL yesno="##NO##"
+    yesno= ZocMsgBox("Are you "||really||" sure that you want to make a "||,
+                    "call across the universe?", 2)
+    IF yesno="##YES##" THEN DO 
+        really= really||" really"
+    END
+END
+SIGNAL finish
+
+
+number=   "555-555-5555-6879"
+name=     "Zaphod"
+pwd=      "HeartOfGold"
+repfile=  "c:\files\qwk\megadodo.rep"
+
+CALL ZocTimeout 60
+
+/******************************************/
+/* dial number and wait until we get in   */
+/* retry until three times or success     */
+/******************************************/
+done= "no"
+DO 3 UNTIL DONE="yes"
+    CALL ZocDial number
+    timeout= ZocWait("CONNECT")
+
+    /* if no timeout (ie. if connected) */
+    IF timeout=0 THEN DO 
+
+        /* log in (send name/password) */
+        CALL ZocWait "Press <ESC> twice to login"
+        CALL ZocSend "^[^["
+        CALL ZocWait "Name?"
+        CALL ZocSend user||"^M"
+        CALL ZocWait "Password?"
+        CALL ZocSend pwd||"^M"
+
+        /* skip news bla bla and wait for main menu */
+        CALL ZocRespond "--Enter--", "^M"
+        CALL ZocRespond "--More--", "N"
+
+        CALL ZocWait "MAIN MENU>"
+
+        CALL ZocRespond "--Enter--"
+        CALL ZocRespond "--More--"
+
+        DONE= "yes"
+    END
+
+END /* DO 3 */
+
+/******************************************/
+/* now see if there's a QWK packet for    */
+/* us to download                         */
+/******************************************/
+CALL ZocSend "Q^M"  /* choice 'Q' in the main menu */
+CALL ZocTimeout 5
+timeout= ZocWait("Packing ...")
+IF timeout\=640 THEN DO 
+    /* OK, packing could take some time */
+    CALL ZocTimeout 360
+    timeout= ZocWait("Start your download NOW!")
+    IF timeout\=640 THEN DO 
+        /* download to the C:\QWK\MEGADODO directory */
+        CALL ZocDownload("ZMODEM", "C:\QWK\MEGADODO")
+    END
+END
+
+/******************************************/
+/* now that we're logged in, we check if  */
+/* there is a file to upload (and do it)  */
+/******************************************/
+IF stream(repfile,"C","QUERY EXISTS")\="" THEN DO
+    CALL ZocSend "R^M"  /* choice 'R' in the main menu */
+    CALL ZocWait "Start your upload NOW!"
+
+    /* upload it */
+    status= ZocUpload("ZMODEM", repfile)
+
+    /* Invoke and wait for the main menu prompt */
+    CALL ZocSend "^M"
+    CALL ZocWait "MAIN MENU>"
+
+    /* if OK, delete it */
+    IF status="##OK##" THEN DO 
+        CALL ZocShell "DEL "||repfile
+    END
+END
+
+/******************************************/
+/* OK, everything done.                   */
+/* Sign off                               */
+/******************************************/
+CALL ZocSend "G^M"  /* choice 'G' in the main menu */
+CALL ZocTimeout 30
+CALL ZocWait "Come back next time"
+CALL ZocHangup
+
+finish:
+EXIT
+

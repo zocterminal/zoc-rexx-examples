@@ -1,0 +1,56 @@
+/* REXX */
+
+
+-- This program lets the user enter a value.  It is done in a sub- 
+-- routine with global variable space that modifies the variables  
+-- of the calling program part.  ENTERIT simply stores its result
+-- in a program wide variable named 'input_number'
+
+CALL ENTERIT
+
+
+-- Now another subroutine checks if the value can be divided by any 
+-- other number.     
+IF HAS_DIVIDERS(input_number)=0 THEN DO 
+    SAY input_number||" is a prime number!"
+END
+ELSE DO 
+    SAY input_number||" is not a prime number!"
+END
+
+-- End program execution --
+EXIT
+
+
+
+/**********************************************************************/
+/* Below is a subroutine.  It has access to the varibale pool of the  */
+/* calling program.  Of course, this could be done in a more elegant  */
+/* way (see sample 06a).                                              */
+/**********************************************************************/
+ENTERIT:
+    input_number= ZocAsk("Please enter a number (up to 1000)")
+    RETURN
+
+
+/**********************************************************************/
+/* Below is a function.  The word PROCEDURE was added, to give it a   */
+/* local variable pool.  Exchange of data with the calling program is */
+/* done through argument and through passing zocresult back through   */
+/* the RETURN mechanism.                                              */
+/**********************************************************************/
+HAS_DIVIDERS: PROCEDURE 
+    /* Pick up first (and only) argument */
+    z= ARG(1)
+    zocresult= 0
+
+    DO i=2 TO z-1
+        IF (z//i)=0 THEN DO
+            /* leave loop if i is a divider of z */
+            zocresult= 1
+            LEAVE i
+        END 
+    END
+
+    RETURN zocresult
+

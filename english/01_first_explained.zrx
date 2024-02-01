@@ -1,0 +1,43 @@
+/* REXX */
+/* ^^^^^^ REXX programs begin with the comment "REXX" on the first line 
+   (today this is a convention, this is no longer strictly required) */
+
+-- this is also a comment (the comment automatically ends at the end of the line)
+/* mostly it depends on personal taste, which type of comment you want to use */
+
+
+/* if you include the following command in the program (i.e. if you remove the comment 
+from it), REXX will show each command as it is processed (TRACE I would show even 
+more debug information). */
+-- TRACE A
+
+
+/*
+ * Let the Program begin
+ */
+
+-- clear the screen
+-- (calling a ZOC-extension to do tha, see Help-Menu, "ZOC REXX Commands")
+CALL ZocCls   
+
+
+-- set a variable 
+who= "World"
+
+
+-- output text and variable via string concatenation operator  || 
+-- (ZocWriteln is a ZOC-extension, see Help-Menu, "ZOC REXX Commands") 
+-- (for concatenation see "The REXX Language", Section "Operators") 
+CALL ZocWriteln "Hello "||who||"!"
+
+
+-- Ask user for his/her name
+-- (calling a ZOC-extension as function, getting the result, see Help-Menu, "ZOC REXX Commands") 
+who= ZocAsk("What is your name")   
+
+
+-- print some text to the ZOC window (this time we are using REXX's own SAY command) 
+SAY "Hello "||who||"!"
+
+EXIT
+

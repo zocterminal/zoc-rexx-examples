@@ -1,0 +1,48 @@
+/*REXX*/
+
+-- this is a screen-scraping example.  
+
+-- assume the host sends a string of data for local processing 
+-- between the tags "[DATA]" and "[/DATA]" and that there is an 
+-- AutoAction in the session profile, which launches this script 
+-- when the string "[/DATA]" was received.
+
+
+-- give ZOC time to actually write the sequence to the screen
+-- (auto action is triggered by reception from the host)
+CALL ZocDelay 0.25
+
+-- just for fun of the sample, scrape the current line (the line
+-- where the cursor is) from the screen
+x= ZocGetInfo("CURSOR-X")
+y= ZocGetInfo("CURSOR-Y")
+s= ZocGetScreen(0,y,80)
+
+CALL ZocMsgBox "Cursor at "||x||" in line "||y||" with string "s
+
+
+-- get the whole screen extract the part between [DATA] and [/DATA]
+cx= ZocGetInfo("SCREENWIDTH")
+cy= ZocGetInfo("SCREENHEIGHT")
+s= ZocGetScreen(0,0,cx*cy)
+
+data= " (not found) "
+sx1= POS("[DATA]", s)
+sx2= POS("[/DATA]", s)
+
+-- maybe you want to display some debug info
+-- CALL ZocMsgBox LENGTH(s) sx1 sx2
+
+IF sx1>0 & sx2>0 & sx1<sx2 THEN DO
+	data= SUBSTR(s, sx1+6)
+	data= LEFT(data, sx2-sx1-6)
+END
+
+-- display the result
+CALL ZocMsgBox "data --->"||data||"<--"
+
+-- for example execute the data as a command through the shell
+-- Call ZocShell data
+
+EXIT
+

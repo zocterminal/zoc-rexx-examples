@@ -1,0 +1,43 @@
+/* REXX: Send something to the remote host and wait for a reply */
+
+
+-- Send tty <enter> 
+-- (assuming you are connected to a Linux shell this will output your /dev/tty) 
+CALL ZocSend "tty^M"
+
+
+-- set a max waiting time of 3 seconds for the ZocWait command (below) 
+CALL ZocTimeout 3
+
+
+
+-- wait for the linux to answer to the tty command, usually /dev/tty...
+-- (an rc of 640 indicates that it did not appear) 
+rc= ZocWait("/dev/")
+IF rc=640 THEN DO 
+    CALL ZocMsgBox "Problem: The expected reply did not appear within 3 seconds"
+    SIGNAL endit
+END
+
+
+-- wait for the rest of the tty output to appear 
+-- (wait for end of line after "/dev/")
+rc= ZocWaitLine()
+IF rc=640 THEN DO 
+    CALL ZocMsgBox "Problem: End of line not received within 3 seconds after '/dev/'"
+    SIGNAL endit
+END
+
+
+-- ZocLastLine() grabs the data received during ZocWaitLine
+thetty= ZocLastLine()
+CALL ZocMsgBox "Your session is on "||thetty
+
+
+-- the 'SIGNAL endit' commands above jump directly to this label
+endit: 
+
+
+-- Done 
+EXIT
+

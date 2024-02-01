@@ -1,0 +1,75 @@
+/*REXX*/
+
+/* This is an exsample calling a hypothetical BBS to download a 
+   file with daily news to demonstrate how to call a BBS (or any 
+   other host and how to initiate a file transfer from REXX). */
+
+
+/* Make a connection via a Host Directory entry */
+ZocAutoConnect "daily-news-bbs"
+
+/* A global success indicator (start with 0 until we have the file) */
+SUCCESS=0
+
+/* wait max 60 sec. until welcome-message prompt */
+Call ZocTimeout 60 
+
+
+x= ZocWait("Welcome")
+IF X\=640 THEN DO   /* OK, connected to the BBS */
+    /* disable automatic start of Zmodem transfers (we start the 
+       transfer from the script via ZocDownload command) */
+    Call ZocSetOption "ZAutoDownload=no"  
+
+    /* Wait max 20 sec. until the prompts appear */
+    Call ZocTimeout 20 
+
+    /* answer the username prompt */
+    x= ZocWait("Username:")
+    IF X==640 THEN SIGNAL done /* timeout error => done */
+    Call ZocSend "harryp^M"
+
+    /* answer the password prompt */
+    x= ZocWait("Password:")
+    IF X==640 THEN SIGNAL done /* timeout error => done */
+    Call ZocSend "alohomora^M"
+
+    /* now wait for the menu, which will allow us to init a Download */
+    x= ZocWait("Choice >") 
+    IF X==640 THEN SIGNAL done  /* timeout error => done */
+
+    /* select "D(ownload)" from the remote menu to make the host 
+       send the file */
+    Call ZocSend "D^M"  
+
+    x= ZocWait("File >")   /* BBS asks us for the file to download */
+    IF X==640 THEN SIGNAL done  /* timeout error => done */
+
+    Call ZocSend "DAILYNEWS.ZIP^M"
+
+    /* remote host will now begin sending, so fire off ZOC's receiving
+       end of the Zmodem transfer */
+    x= ZocDownload("ZMODEM", "C:\DAILYFILES")
+    IF x=="##OK##" THEN DO         
+        SUCCESS=1	
+    END
+
+    Call ZocWait "Choice >"
+    Call ZocSend "X^M"
+    Call ZocDelay 2
+
+    Call ZocDisconnect
+END
+
+
+/* We arrive here either after a ZocDisconnect or through a "SIGNAL done" command */
+:DONE
+
+/* the global success flag will tell us if we arrived here 
+   with success or by error */
+IF success==1 THEN DO 
+    Call ZocMsgBox "All was fine!"
+END
+
+EXIT 
+

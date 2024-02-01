@@ -1,0 +1,43 @@
+/*******************************************************
+** AUTORESPONSE
+********************************************************
+** 
+** with the ZocRespond function you may setup automatic
+** responses for incoming data. These responses are 
+** checked within a ZocDelay or ZocWait command.
+** 
+** There is a limitation of 16 responses, each having
+** 80 characters max.
+** 
+** This is a example of how to login to an old school 
+** bbs and skip across the initial blurp (assuming that 
+** it has a "- press enter to continue -" prompt).
+** 
+** However, this is not the typical way to do a login;
+** it is merely a sample to show the use of ZocRespond.
+** 
+*/
+
+
+/* Setup a few replies for the login and form the info blurp */
+CALL ZocRespond "Name", "ZOC^M"
+CALL ZocRespond "Password", "SECRET^M"
+CALL ZocRespond " continue -", "^M"
+
+/* Dial in (no error busy etc. checking) */
+CALL ZocConnect "TELNET!ancient-bbs.somewhere.com"
+
+/* wait until main menu and leave the work to the responses */
+CALL ZocTimeout 3600
+CALL ZocWait "MAIN MENU>"
+
+/* now that we are logged in, clear the responses */
+CALL ZocRespond "Name"
+CALL ZocRespond "Password"
+CALL ZocRespond " continue -"
+
+/* choose "2" and Enter in the main menu */
+CALL ZocSend "2^M"
+
+EXIT
+

@@ -1,0 +1,51 @@
+/* REXX: Send something to the remote host and wait for a reply */
+
+
+-- Send tty <enter> 
+-- (assuming you are connected to a Linux shell this will output your /dev/tty) 
+CALL ZocSend "tty^M"
+
+
+-- set a max waiting time of 3 seconds for the ZocWait command (below) 
+CALL ZocTimeout 3
+
+
+
+-- wait for the linux to answer to the tty command, usually /dev/tty...
+-- followed by thenext command prompt (the prompt should end with "$")
+-- (an rc of 640 indicates that it did not appear) 
+rc= ZocWait("$")
+IF rc=640 THEN DO 
+    CALL ZocMsgBox "Problem: The prompt did not reappear within 3 seconds"
+    SIGNAL endit
+END
+
+
+
+-- Make sure that the prompt is actually on the screen (not just in our 
+-- internal receive buffers)
+CALL ZocDelay 0.1
+
+
+
+-- now read the result directly from the screen (it should be in the line 
+-- above the current cursor position)
+y= ZocGetInfo("CURSOR-Y")
+len= ZocGetInfo("SCREENWIDTH")
+text= ZocGetScreen(0, y-1, len)
+thetty= STRIP(text)
+
+
+
+-- ZocLastLine() grabs the data received during ZocWaitLine
+CALL ZocMsgBox "Your session is on "||thetty||"!"
+
+
+
+-- the 'SIGNAL endit' commands above jump directly to this label
+endit: 
+
+
+-- Done 
+EXIT
+

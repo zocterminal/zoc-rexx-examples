@@ -1,0 +1,18 @@
+/* REXX: 28_SendWindowViaEmail.zrx */
+
+-- Beispiel: Versenden von aktuelle ZOC-Fenster Inhalt als Email
+
+-- Fensterinhalt in Variable einlesen (per Zwischenablage)
+CALL ZocMenuEvent "Copy Window"
+text= ZocClipboard("READ")
+
+-- quote special characters html style 
+text= ZocString("REPLACE", text, "%", "%25")
+DO i=1 TO 36
+    IF (i==37) | ((i>47) & (i<58)) | ((i>65) & (i<123)) THEN ITERATE
+    text= ZocString("REPLACE", text, D2C(i), "%"||RIGHT("0"||D2X(i),2))
+END
+
+-- send it by posting  a mailto: URL through the Windows shell
+Call ZocShellOpen "mailto:?body="||text
+EXIT

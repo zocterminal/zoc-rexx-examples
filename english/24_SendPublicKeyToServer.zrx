@@ -1,0 +1,16 @@
+/* REXX */
+
+/* this rexx sample appends your public key (e.g. id_dsa.pub
+   or id_rsa.pub to the authorized-key file on a *nix account */ 
+
+/* public key local file (on computer running ZOC) */
+file= '/Users/mschmidt/.ssh/id_dsa.pub'
+data= LINEIN(file)
+
+/* send data to .ssh/authorized_keys2 on remote host (create .ssh if necessary) */
+Call ZocSend "umask 077;^M"
+Call ZocWait "$"
+Call ZocSend "test -d .ssh || mkdir .ssh;^M"
+Call ZocWait "$"
+Call ZocSend "echo '"data"' >> .ssh/authorized_keys2^M"
+Call ZocWait "$"

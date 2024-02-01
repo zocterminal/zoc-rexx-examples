@@ -1,0 +1,72 @@
+/*REXX*/
+
+/* 
+ * This sample demonstrates how to catch output from a remote
+ * command (unix 'ls -l'.  The output is then split into lines 
+ * and bits of information are extracted from them.
+ */
+
+
+
+/* 
+ * catch all output from the command (ls -l) until the next 
+ * system prompt appears (assuming "mschmidt$" is the prompt) 
+ */
+Call ZocTimeout 20        /* max 20 seconds for the output */
+Call ZocReceiveBuf 4096   /* max 4KB for output */
+Call ZocSend "ls -l^M"    /* send ls -l <enter> */
+prompt= "mschmidt$"	  /* <-- change this to match your own Linux prompt */
+x= ZocWait(prompt)        /* wait for prompt after ls (change to whatever your Unix-prompt is, it indicates the end of the ls-output) */
+
+/* if the prompt was found (640 indicates a timout), then look at the data */
+IF x\=640 THEN DO 
+	data= ZocReceiveBuf(0)
+
+	/* get number of lines from data */
+	howmany= ZocString("LINECOUNT", data)
+	SAY howmany "lines"
+
+	/* for debugging we could look at the data in hex via 
+	SAY C2X(data)
+	*/
+
+
+	/* 
+	 * extract each line from data (first line is our echo, last is the final prompt) 
+	 */
+        linecnt= 0
+	DO i= 2 TO howmany-1
+		/* get the i'th line and strip possibly lingering CR/LFs */
+		line= ZocString("LINE", data, i)
+		
+		/* put it into an array (lines) */
+                linecnt= linecnt+1
+		lines.linecnt= line  /* this is REXX's way of saying lines[linecnt]= line */
+	END
+	lines.0= linecnt  /* by convention the zero-element of an array stores the size */
+
+
+	/*
+ 	 * walk through the array, analyzing each line of output
+	 */
+	DO i= 1 TO lines.0 
+		line= lines.i	/* get a copy of the i'th line */
+
+		/* some fun with string functions (assume std ls -l output) */
+        	infos= LEFT(line, 58)  /* perms, groups, etc. */
+		name= SUBSTR(line, 59) /* filename */
+
+		/* use PARSE to get space separated parts from 'infos' */
+		PARSE VALUE infos WITH perms dummy owner group size month date time 
+
+		/* display the stuff */
+		SAY "Line"||i||": "||line
+		SAY "Line"||i||": "||name||" ("||size||")"
+		SAY 
+	END
+END
+ELSE DO 
+	SAY "Problem: Timeout when waiting for '" || prompt || "'"
+END
+
+EXIT
