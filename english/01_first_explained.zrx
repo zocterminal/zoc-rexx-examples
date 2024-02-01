@@ -3,7 +3,7 @@
    (today this is a convention, this is no longer strictly required) */
 
 -- this is also a comment (the comment automatically ends at the end of the line)
-/* mostly it depends on personal taste, which type of comment you want to use */
+/* it depends mostly on personal taste, which type of comment you want to use */
 
 
 /* if you include the following command in the program (i.e. if you remove the comment 
@@ -17,7 +17,12 @@ more debug information). */
  */
 
 -- clear the screen
--- (calling a ZOC-extension to do tha, see Help-Menu, "ZOC REXX Commands")
+-- (calling a ZOC-extension that clears the screen. Think of
+--  ZOC as a library that adds functions to the basic REXX language.
+--  See ZOC > Help-Menu > "ZOC REXX Commands" for a full list.
+--  See also Help-menu > REXX Script Introduction and 
+--  REXX Language Elements for quick overwiew topics that
+--  explain the basic structure of the language)
 CALL ZocCls   
 
 
