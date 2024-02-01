@@ -1,4 +1,5 @@
-/* REXX: first sample without all the blurp */
+/* REXX: first sample without the extensive explanations */
+/*       see 01_first_explained.zrx for full descriptions */
 
 -- clear the screen
 CALL ZocCls   
