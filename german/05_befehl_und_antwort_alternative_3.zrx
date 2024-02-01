@@ -1,0 +1,39 @@
+/* REXX: Sende etwas an die Gegenstelle und warte auf Antwort */
+
+-- Sende tty <enter> 
+-- (unter Linux gibt das das aktuelle Terminal in Form /dev/tty... aus) 
+CALL ZocSend "tty^M"
+
+
+-- Setze max. 3 Sekunden für ZocWait Befehle (siehe unten)
+CALL ZocTimeout 3
+
+
+
+-- Warte auf die Ausgabe des tty-Befehls, normalerweise /dev/tty...
+-- (ein Wert rc 640 signalisiert, dass der Text nicht empfangen wurde) 
+rc= ZocWait("/dev/")
+IF rc=640 THEN DO 
+    CALL ZocMsgBox "Problem: Der Text '/dev/' wurde nicht innerhalb 3 Sek. empfangen"
+    SIGNAL endit
+END
+
+-- Warte auf den Rest der Ausgabe
+-- (d.h. warte auf das naechste Zeilenende nach "/dev/")
+rc= ZocWaitLine()
+IF rc=640 THEN DO 
+    CALL ZocMsgBox "Problem: Kein Zeilenende erkannt innerhalb 3 Sek nach '/dev/'"
+    SIGNAL endit
+END
+
+-- ZocLastLine() liefert die Zeile die während ZocWaitLine empfangen wurde
+thetty= ZocLastLine()
+CALL ZocMsgBox "Ihre Session is auf "||thetty
+
+
+-- die 'SIGNAL endit' Befehle kommen direkt hier an
+endit: 
+
+-- Done 
+EXIT
+

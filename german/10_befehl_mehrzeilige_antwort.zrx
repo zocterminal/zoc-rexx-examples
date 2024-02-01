@@ -1,0 +1,36 @@
+/* REXX */
+/* Einen Linux "dig" Befehl absetzen und den kompletten Output in einem Array speichern */
+
+/* Befehl senden */
+CALL ZocSend "dig emtec.com^M"
+
+/* Max Zeit pro Zeile der Antwort 10 Sek */
+CALL ZocTimeout 10
+
+/* Ausgabe Zeile für Zeile lesen und speichern bis ";; MSG" kommt */
+DO x=1 TO 999 
+    /* auf naechste Zeile warten (oder rc 640 wenn keine kommt)
+    rc= ZocWaitLine()
+
+    /* Schleife beenden wenn keine Zeile ausgegeben wurde */
+    IF rc=640 THEN LEAVE
+
+    /* Zeile in Tabelle/Array speichern */
+    zeile.x= ZocLastline()
+    zeile.0= x
+
+    /* Schleife beenden wenn am Anfang der Zeile der Text ";; MSG" stand */
+    IF LEFT(zeile.X, 6)=";; MSG" THEN LEAVE
+END 
+
+/* 1 Sek Pause */
+CALL ZocDelay 1
+SAY ""
+
+/* Alle Zeilen wieder anzeigen */
+DO y=1 TO zeile.0
+    SAY "ZEILE "||y||": "||zeile.y
+END
+
+EXIT
+

@@ -1,0 +1,42 @@
+/* REXX */
+/* ^^^^^^ REXX-Skripte beginnen mit dem Kommentar "REXX" in der ersten Zeile 
+   (diese ware frueher zwingend notwendig, heute ist es eher eine Konvention) */
+
+-- Das ist auch ein Kommentar (er endet am Ende der Zeile)
+/* welche Art von Kommentar man verwendet ist Geschmackssache */
+
+/* Wenn man den folgenden Befehl ins Programm mit aufnimmt (d.h. den Kommentar davor entfernt), 
+wird bei der Abarbeitung jeder Befehl angezeigt (mit TRACE I kommt dann sogar noch viel mehr) */
+-- TRACE A
+
+
+/*
+ * Lassen wir das Programm beginnen
+ */
+
+
+-- Bildschirm loeschen
+-- (Aufruf einer ZOC-REXX Erweiterung, siehe Hilfe-Menue, "ZOC-REXX Befehle") 
+CALL ZocCls  
+
+
+-- Eine Variable setzen 
+who= "World"
+
+
+-- Text und Variable per Zeichenketten-Verknuepfung || ausgeben
+-- (Aufruf der ZOC-Erweiterung ZocWriteln, siehe Hilfe-Menue, "ZOC-REXX Befehle") 
+-- (wg. String-Verkettung siehe "Die REXX Sprache (engl.)", Abschnitt "Operators") 
+CALL ZocWriteln "Hello "||who||"!"
+
+
+/* Benutzer nach seinem Namen fragen 
+   (Aufruf einer ZOC-Erweiterung als Funktion mit Rückgabewert, siehe Hilfe-Menü, ZOC-REXX Befehle) */
+who= ZocAsk("Wie ist Dein Name?")
+
+
+/* Text auf den ZOC-Bildschirm ausgeben (diesmal unter Verwendung des REXX-eigenen SAY-Befehls) */
+SAY "Hallo "||who||"!"
+
+EXIT
+

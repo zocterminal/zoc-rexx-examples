@@ -1,0 +1,54 @@
+/*REXX*/
+
+/*  Auslesen einer URL aus dem Zwischenablage (z.B. nach Markierung am Bildschirm) */
+/*  und starten von Internet Explorer, welche diese URL benutzt */
+
+/*  (Beispiel-Skript von unserem langjaehrigen Benutzer und Freund Rich Greenberg) */
+
+true  = (0=0)
+false = (1=0)
+Trace O
+
+http  = 'http://'
+https = 'https://'
+out = ''
+/* Nachfolgende Zeile veraendert, um einen anderen Browser zu verwenden */
+browser = "C:\Program Files\Internet Explorer\iexplore.exe"
+
+in = ZocClipboard('READ')
+
+/*
+   Schleife durch die eingelesenen Daten mit zeichenweiser Verarbeitung, um spezielle Zeichen
+   auszufiltern.
+*/
+
+in = Strip(in, 'L')
+do j = 1 to length(in)
+   z = substr(in, j, '1')
+   if verify(z,x2c(200a0d3c3e5b5d),'M')           /* "spezial" Filter */
+      then iterate j              /* Diese Liste bei Bedarf anpassen */
+      else out = out || z
+   end
+
+/*
+   "HTTP" zu Beginn hinzufuegen, falls nicht schon vorhanden
+*/
+
+select
+   when left(out, length(http)) = http | left(out, length(http)) = upper(http)
+      then nop
+   when left(out, length(https)) = https | left(out, length(https)) = upper(https)
+      then nop
+   otherwise
+      out = http || out
+end
+
+/*
+    URL an Browser senden, falls die URL nicht zu lang ist
+*/
+
+if (length(browser) + Length(out)) < 480
+   then Call ZocShell 'start "" "'browser'"' '"'out'"',1
+   else say 'URL: Laenge der URL ist zu lang um korrekt verarbeitet zu werden.'
+
+exit

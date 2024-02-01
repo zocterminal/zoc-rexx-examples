@@ -1,0 +1,30 @@
+/* REXX Beispiel, um auf einen angeschlossenen Drucker zu drucken */
+
+/* REXX unterstuetzt Drucken nicht direkt. Durch Verwendung der VT100,
+   VT102, VT220 uund Linux Emulationen kann die Ausgabe jedoch auf
+   einen Drucker umgeleitet werden. Hierbei werden die Sequenzen
+   VT-PRINT-ON und VT-PRINT-OFF verwendet.
+
+   Nachdem das Drucken eingeschaltet wurde, wird die gesamte Bildschirm-
+   ausgabe auf den angeschlossenen Drucker umgeleitet
+*/
+
+esc= D2C(27)  /* ein Zeichen Hex 1B bzw. Dez. 27 */
+vtprton= esc||"[5i"
+vtprtoff= esc||"[4i"
+
+CALL ZocWrite vtprton
+
+Call ZocWrite "Drucke..."
+
+DO i=1 to 10 
+
+	SAY COPIES("  ", i)||"Hello World"
+
+END
+
+CALL ZocWrite vtprtoff
+
+Call ZocWrite " fertig!"
+
+

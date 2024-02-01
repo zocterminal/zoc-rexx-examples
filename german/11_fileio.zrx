@@ -1,0 +1,74 @@
+/* REXX 
+** 
+**  Dieses Beispiel zeigt alle grundlegenden Datei-Operationen:
+**  (siehe "Die REXX Sprache (engl.)", Abschnitt "Built In Functions") 
+**
+**  - ueberpruefen, ob eine Datei existiert
+**
+**  - Datei zum Schreiben oeffnen
+**  - in Datei schreiben
+**  - Datei schliessen
+**
+**  - Datei zum Lesen oeffnen
+**  - aus Datei lesen und Dateiende ueberpruefen
+**  - Datei schliessen
+**
+*/
+
+filepath= ZocFilename("RESOLV", "%USERDESKTOP%")
+filename= ZocFilename("COMBINE", filepath, "RexxBeispiel.txt")
+SAY filename
+
+/* ------------------------------------------------------------------ */
+
+/* Die Funktion STREAM(,"C","QUERY EXISTS") wird verwendet, um zu     */
+/* ueberpruefen, ob eine Datei existiert.                             */
+
+IF STREAM(filename, "C", "QUERY EXISTS")\="" THEN DO
+    /* wenn Datei existiert, loeschen */
+    CALL ZocFileDelete(filename)
+END
+
+/* ------------------------------------------------------------------ */
+
+/* Die Funktion STREAM(,"C","OPEN WRITE") wird verwendet, um eine     */
+/* Datei zu oeffnen                                                   */
+CALL STREAM filename, "C", "OPEN WRITE"
+
+/* Ein Aufruf von LINEOUT schreibt Daten in eine Datei. Anstatt eines */
+/* Filehandles wird der Dateiname uebergeben.                         */
+
+CALL LINEOUT filename, "DIES IST EINE ZEILE TEXT"
+CALL LINEOUT filename, "DIES AUCH"
+CALL LINEOUT filename, ""
+CALL LINEOUT filename, "NOCH MEHR TEXT NACH EINER LEERZEILE"
+
+/* Die Funktion STREAM schließt die Datei wieder.                     */
+CALL STREAM filename, "C", "CLOSE"
+
+/* ------------------------------------------------------------------ */
+
+/* Wir oeffnen die Datei erneut und lesen die Daten mit LINEIN wieder */
+/* ein. Das Dateiende wird mit der Funktion STREAM(,"S") abgefragt.   */
+
+CALL STREAM filename, "C", "OPEN READ"
+
+DO FOREVER 
+    /* eine Zeile Text lesen */
+    line= LINEIN(filename)
+
+    /* Schleife verlassen, wenn Dateiende erreicht wurde */
+    IF STREAM(filename, "S")\="READY" THEN DO
+        LEAVE
+    END
+
+    /* Textzeile ausgeben */
+    SAY "->"line
+END
+
+CALL STREAM filename, "C", "CLOSE"
+
+/* ------------------------------------------------------------------ */
+
+EXIT
+

@@ -1,0 +1,47 @@
+/* REXX SAMPLE (read and parse Windows DIR command) */
+
+/* ------------------------------------------------------------------ */
+/* read directory contents via redirected Windows DIR command         */
+/* (e.g. "DIR C:\DATA >somefile.txt")                                 */
+/* ------------------------------------------------------------------ */
+
+outfile= "C:\TEMP\dirout.txt"
+Call ZocShell "DIR C:\ >"||outfile, 1
+
+
+
+/* ------------------------------------------------------------------ */
+
+/* now we open the result file and read the data back in via LINEIN   */
+/* function.  End-Of-File is detected via STREAM(,"S") function       */
+
+CALL STREAM outfile, "C", "OPEN READ"
+
+DO FOREVER 
+    /* read one line of text */
+    line= LINEIN(outfile)
+
+    /* leave if EOF was reached (stream no longer READY) */
+    IF STREAM(outfile, "S")\="READY" THEN DO
+        LEAVE
+    END
+
+    /* skip lines that are not file entries (header, etc) */
+    IF (LINE=="") | (LEFT(LINE,1)==" ")  THEN DO
+        ITERATE
+    END
+
+    /* parse line and print parts */
+    --  SAY "->"line
+    date= LEFT(line, 10)
+    time= SUBSTR(line, 13,5)
+    size= STRIP(SUBSTR(line, 22, 14), "B")
+    name= SUBSTR(line, 37)
+    SAY "*"||date||"*"||time||"*"||size||"*"||name||"*"
+END
+
+CALL STREAM outfile, "C", "CLOSE"
+
+/* ------------------------------------------------------------------ */
+
+EXIT

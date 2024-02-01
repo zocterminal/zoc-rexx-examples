@@ -1,0 +1,47 @@
+/* REXX: Sende etwas an die Gegenstelle und warte auf Antwort */
+
+-- Sende tty <enter> 
+-- (unter Linux gibt das das aktuelle Terminal in Form /dev/tty... aus) 
+CALL ZocSend "tty^M"
+
+
+-- Setze max. 3 Sekunden für ZocWait Befehle (siehe unten)
+CALL ZocTimeout 3
+
+
+
+-- Warte auf die Ausgabe des tty-Befehls, normalerweise /dev/tty...
+-- und auf das folgende Eingabeprompt (das mit "$" enden sollte)
+-- (ein Wert rc 640 signalisiert, dass der Text nicht empfangen wurde) 
+rc= ZocWait("$")
+IF rc=640 THEN DO 
+    CALL ZocMsgBox "Problem: Das Befehlsprompt erschien nicht innerhalb 3 Sek."
+    SIGNAL endit
+END
+
+
+
+-- Kleine Pause um sicherzustellen, dass das Ergebnis tatsächlich schon am 
+-- Bildschirm angezeigt wurde (und nicht nur intern emfpangen wurde)
+CALL ZocDelay 0.1
+
+
+
+-- Ergebnis direkt vom Bildschirm lesen (es sollte nun in der Zeile über 
+-- der aktuellen Cursorposition stehen)
+y= ZocGetInfo("CURSOR-Y")
+len= ZocGetInfo("SCREENWIDTH")
+text= ZocGetScreen(0, y-1, len)
+thetty= STRIP(text)
+
+
+-- ZocLastLine() liefert die Zeile die während ZocWaitLine empfangen wurde
+CALL ZocMsgBox "Ihre Session is auf "||thetty
+
+
+-- die 'SIGNAL endit' Befehle kommen direkt hier an
+endit: 
+
+-- Done 
+EXIT
+

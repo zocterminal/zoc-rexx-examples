@@ -1,0 +1,54 @@
+/* REXX: Sende etwas an die Gegenstelle und warte auf Antwort */
+
+
+-- Einen Empfangspuffer vorbereiten, der alle Ausgaben bis zum nächsten 
+-- ZocWait speichert (max 1000 Zeichen sollten genug sein)
+CALL ZocReceiveBuf 1000
+
+
+
+-- Sende tty<enter> 
+-- (unter Linux gibt das das aktuelle Terminal in Form /dev/tty... aus) 
+CALL ZocSend "tty^M"
+
+
+-- Setze max. 3 Sekunden für ZocWait Befehle (siehe unten)
+CALL ZocTimeout 3
+
+
+
+-- Warte auf die Ausgabe des tty-Befehls, normalerweise /dev/tty...
+-- und auf das folgende Eingabeprompt (das mit "$" enden sollte)
+-- (ein Wert rc 640 signalisiert, dass der Text nicht empfangen wurde) 
+rc= ZocWait("$")
+IF rc=640 THEN DO 
+    CALL ZocMsgBox "Problem: Das Befehlsprompt erschien nicht innerhalb 3 Sek."
+    SIGNAL endit
+END
+
+
+
+-- Nach dem ZocWait enthält der Puffer nun den gesendeten Befehl selbst, dann
+-- die Ausgabe des Befehls und dann das Prompt in der nächsten Zeile.
+-- d.h. "tty
+--       /dev/ttyxyz
+--       whatever-the-prompt$ "
+-- Wir speichern das in der Variable 'databuf'
+databuf= ZocReceiveBuf(0)
+
+-- Nun kann man einfach die ZocString Funktion verwenden um aus den Daten die
+-- zweite Zeile zu extrahieren
+thetty= ZocString("LINE", databuf, 2)
+
+
+
+-- ZocLastLine() liefert die Zeile die während ZocWaitLine empfangen wurde
+CALL ZocMsgBox "Ihre Session is auf "||thetty
+
+
+-- die 'SIGNAL endit' Befehle kommen direkt hier an
+endit: 
+
+-- Done 
+EXIT
+

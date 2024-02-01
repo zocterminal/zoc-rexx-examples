@@ -1,0 +1,55 @@
+/* REXX */
+
+/* Arrays werden durch Anhängen eines Punktes und einem Index an den */
+/* Variablennamen erzeugt. Typischerweise wird die Größe des Arrays  */
+/* im Index 0 gespeichert.                                           */
+
+fill= 0
+list.0= fill
+z= 3
+
+/* Eine Liste mit 50 Primzahlen erzeugen */
+
+DO WHILE list.0 < 50 
+    IF HAT_TEILER(z)=0 THEN DO  /* IF keine teiler THEN */
+	-- Fuellstand der Liste erhoehen
+	fill= fill + 1
+        list.0= fill
+
+	-- Element am index des neuen Fuellstands abspeichern
+        ind= fill
+        list.ind= z  -- (in anderen Sprachen würde man schreiben:  list[ind]= z )
+    END
+
+    z= z+2
+END
+
+/* Alle Elemente der Liste am Bildschirm ausgeben */
+DO i=1 TO list.0
+    SAY i||". Primzahl: "||list.i   -- (in anderen Sprachen würde man schreiben:  list[i] )
+END
+
+EXIT
+
+
+/************************************************************************/
+/* HAT_TEILER ist eine Funktion. Das Wort PROCEDURE wird angehängt, um  */
+/* der Funktion eine eigene Variablenumgebung zuzuteilen. Der Wertaus-  */
+/* tausch zum aufrufenden Programm wird durch Argumentübergabe und      */
+/* Rückgabewert durchgeführt.                                           */
+/************************************************************************/
+HAT_TEILER: PROCEDURE 
+    /* Das erste (und einzige) Argument abholen */
+    z= ARG(1)
+    teilbar= 0
+
+    DO i=2 TO z-1
+        IF (z//i)=0 THEN DO
+            /* Schleife verlassen, wenn i ein Teiler von z ist */
+            teilbar= 1
+            LEAVE i
+        END 
+    END
+
+    RETURN teilbar
+

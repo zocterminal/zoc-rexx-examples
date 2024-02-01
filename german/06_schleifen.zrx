@@ -1,0 +1,50 @@
+/* REXX: Dieses Beispiel demonstriert Programmschleifen */
+
+CALL ZocCls
+
+
+------------------------------------------------------------------------
+-- Eine einfache Schleife (sie wird dreimal durchlaufen)
+------------------------------------------------------------------------
+DO 3
+    SAY "ZOC!"
+END 
+
+
+------------------------------------------------------------------------
+-- Diese Schleife wird so lange durchlaufen, bis der Benutzer JA antwortet 
+------------------------------------------------------------------------
+DO UNTIL answer="JA"
+    answer= ZocRequest("Moegen Sie ZOC?", "JA", "nein")
+END 
+
+CALL ZocMsgBox "Schoen das zu hoeren!"
+
+
+------------------------------------------------------------------------
+-- Diese Schleife wird auch so lange durchlaufen, bis JA geantwortet wird
+------------------------------------------------------------------------
+DO FOREVER
+    answer= ZocRequest("Moegen Sie ZOC wirklich?", "JA", "nein")
+    IF answer="JA" THEN LEAVE
+END 
+
+CALL ZocMsgBox "Schoen dass das immer noch so ist!"
+
+
+
+------------------------------------------------------------------------
+-- Eine Zaehlschleife (i nimmt dabei alle Werte von 1 bis 11 an)
+------------------------------------------------------------------------
+DO i=1 TO 11 
+    /* wenn nicht durch 2 teilbar, (siehe "Die REXX Sprache (engl.)", Abschnitt "Operators")  */
+    IF i//2 \= 0 THEN DO   
+        SAY i||": Er liebt mich"
+    END
+    ELSE DO 
+        SAY i||": Er liebt mich nicht"
+    END
+END
+
+EXIT
+

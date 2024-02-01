@@ -1,0 +1,24 @@
+/* REXX: wie das erste Beispiel, aber ohne das ganze Bla-Bla */
+
+-- Bildschirm loeschen
+CALL ZocCls  
+
+
+-- Eine Variable setzen 
+who= "World"
+
+
+-- Text und Variable per Zeichenketten-Verknuepfung || ausgeben
+CALL ZocWriteln "Hello "||who||"!"
+
+
+-- Benutzer nach seinem Namen fragen 
+who= ZocAsk("Wie ist Dein Name?")
+
+
+-- Ausgabe einer netten Begruessung
+SAY "Hallo "||who||"!"
+
+
+EXIT
+

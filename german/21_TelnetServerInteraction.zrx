@@ -1,0 +1,64 @@
+/*REXX*/
+
+/* 
+ * Dieses Beispiel demonstriert, wie eine Telnet-Verbindung initiiert wird
+ * (An- und Abmeldung an einen SMTP Server)
+ */
+
+/* Diesen Befehl ins Programm aufnehmen, um jeden Befehl waehrend der Ausfuehrung zu sehen
+TRACE A
+*/
+
+/* Löschen der Felder fuer den Fehlerfall */
+answer1= "<none>"
+answer2= "<none>"
+
+
+/* Telnet-Verbinungen sind asynchron, und manchmal zu schnell, um die Connect-Meldung
+ * noch zu erhalten. Deshalb warten wird auf die ersten sinnvollen Daten der
+ * Gegenstelle (ueblicherweise ein Prompt o.ae.).
+ */
+
+CALL ZocSetDevice "Telnet"
+CALL ZocConnect "pop.gmail.com:25"
+
+CALL ZocTimeout 20 /* max 20 Sekunden fuer ZocWait */
+x= ZocWait("220 ") /* warte auf erste Meldung vom SMTP Server */
+IF x=640 THEN SIGNAL theEnd  /* 640 bedeutet Timeout */
+
+
+/* 
+ * Wir warten auf den Rest der Ausgabe (SMTP Startmeldung) und speichern diese
+ */
+x= ZocWaitLine()
+if x=640 THEN SIGNAL theEnd /* 640 bedeutet Timeout */
+answer1= ZocLastLine()
+
+
+/* 
+ * Wir senden einen Befehl und erhalten 1 Zeile Antwort
+ * (siehe Beispiel GetCommandOutput.zrx, um Mehrfach-Antworten zu verarbeiten)
+ */
+CALL ZocSend "HELO localhost^M^J"
+x= ZocWaitLine()
+if x=640 THEN SIGNAL theEnd /* 640 bedeutet Timeout */
+answer2= ZocLastLine()
+
+
+/* 
+ * Abmelden 
+ */
+CALL ZocSend "QUIT^M^J"
+CALL ZocWait "DISCONNECTED" /* auf ZOCs DISCONNECT Meldung warten */
+
+
+/* Wenn wir diesen Punkt erreichen, haben wir entweder gesendet oder wir
+ * haben einen SIGNAL theEnd durchlaufen
+ */
+theEnd:
+
+SAY
+SAY "Answer 1: "||answer1
+SAY "Answer 2: "||answer2
+
+EXIT

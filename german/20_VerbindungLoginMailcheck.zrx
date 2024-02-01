@@ -1,0 +1,48 @@
+/*REXX*/
+
+/* Dieses Beispiel meldet sich bei einem Unix-Rechner an und 
+   prueft ob neue Mail vorhanden ist.  Wenn ja, wird ein
+   Benachrichtigungsfenster angezeigt. */
+
+-- variablen mit host und logininformationen
+hostip= "users.hogwarts.edu"
+username= harryp"
+password= "alohomora"
+
+-- ssh verbindung aufbauen
+CALL ZocSetDevice "Secure Shell"
+CALL ZocConnect username":"password"@"hostip
+
+-- falls der rechner antwortet, sollten wir innerhalb
+-- von 10 Sekunden den text "Last login" sehen
+-- (Ergebnis von 640 beim ZocWait-befehl bedeutet timeout) 
+CALL ZocTimeout 10
+x= ZocWait("Last login")
+IF x\=640 THEN DO 
+	-- erfolgreich angemeldet, auf prompt warten
+	CALL ZocWait "$"
+
+	-- sende den befehl 'mail'
+	CALL ZocSend "mail^M"
+
+	-- das echo des mail-befehls ueberspringen
+	CALL ZocWaitline
+
+	-- die naechste zeile die kommt, ist die ausgabe
+	-- von 'mail' (z.b. 'no mail for harryp')
+	CALL ZocWaitline
+	themail= ZocLastline()
+
+	-- abmelden und verbindungsabbau
+	CALL ZocSend "exit^M"
+	CALL ZocDelay 1
+	CALL ZocDisconnect
+	
+	
+	/* wenn die antwort nicht mit "No mail" anfaengt,
+	    wird eine Meldung fuer den Benutzer angezeigt */
+	IF LEFT(themail,7)\="No mail" THEN DO 
+		CALL ZocMsgBox themail
+	END
+END
+

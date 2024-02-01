@@ -1,0 +1,16 @@
+/* REXX */
+
+/* Dieses Beispiel haengt Ihren Publickey (z.B. id_dsa.pub
+   oder id_rsa.pub an die Datei authorized-key eines *nix Accounts an */ 
+
+/* public key datei */
+file= '/Users/mschmidt/.ssh/id_dsa.pub'
+data= LINEIN(file)
+
+/* sende daten an .ssh/authorized_keys2 (erstelle .ssh falls notwendig) */
+Call ZocSend "umask 077;^M"
+Call ZocWait "$"
+Call ZocSend "test -d .ssh || mkdir .ssh;^M"
+Call ZocWait "$"
+Call ZocSend "echo '"data"' >> .ssh/authorized_keys2^M"
+Call ZocWait "$"

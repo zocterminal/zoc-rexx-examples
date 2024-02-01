@@ -1,0 +1,73 @@
+/*REXX*/
+
+/* 
+ * Dieses Beispiel zeigt, wie es möglich ist, die Ausgabe eines auf der
+ * Remote-Seite ausgeführten Befehls (Unix 'ls -l') abzufangen. Die Ausgabe
+ * wird dann in einzelne Zeilen gesplittet und einige Teile daraus extrahiert.
+ */
+
+
+/* 
+ * Abfangen der gesamten Ausgabe des Befehls (ls -l) bis zum
+ * nächten System-Prompt (in diesem Fall mschmidt$)
+ */
+Call ZocTimeout 20        /* Warte 20 Sekunden auf Ausgabe */
+Call ZocReceiveBuf 4096   /* 4KB für Ausgabe reservieren */
+Call ZocSend "ls -l^M"    /* ls -l <enter> senden*/
+prompt= "mschmidt$"	  /* <-- anpasen so dass es Ihre eigene Befehlsaufforderung enthaelt */
+x= ZocWait(prompt)        /* nach der Ausgabe von ls -l auf prompt 'mschmidt$' warten */
+
+/* 640 bedeutet Timeout, andernfalls haben wir das erwartete Prompt empfangen */
+IF x\=640 THEN DO 
+	data= ZocReceiveBuf(0)
+
+	/* aus wievielen Zeilen bestehen die Daten */
+	howmany= ZocString("LINECOUNT", data)
+	SAY howmany "Zeilen"
+
+	/* zum Debuggen können die Daten auch in Hex angezeigt werden
+	SAY C2X(data)
+	*/
+
+
+	/* 
+	 * extrahiere jede einzelne Zeile aus den Daten (die erste Zeile ist unser Echo,
+	 * die letzte Zeile unser finales Prompt
+	 */
+        linecnt= 0
+	DO i= 2 TO howmany-1
+		/* i-te Zeile holen und mögliche CR/LFs entfernen */
+		line= ZocString("LINE", data, i)
+		
+		/* Speichere die Zeilen in einem Array */
+                linecnt= linecnt+1
+		lines.linecnt= line  /* das ist die REXX-Syntax für lines[linecnt]= line */
+	END
+	lines.0= linecnt  /* in REXX speichert das 0-te Element die Größe des Arrays */
+
+
+	/*
+         * wir gehen per Schleife durch das Array und analysieren jede Zeile
+         */
+	DO i= 1 TO lines.0 
+		line= lines.i	/* erstelle eine Kopie der i-ten Zeile */
+
+		/* String-Funktionen helfen beim Verarbeiten des Outputs (ls -l Ausgabe angenommen) */
+        	infos= LEFT(line, 58)  /* perms, groups, etc. */
+		name= SUBSTR(line, 59) /* dateiname */
+
+		/* Wir verwenden den PARSE Befehl um mit Leerzeichen getrennte Teile zu erhalten */
+		PARSE VALUE infos WITH perms dummy owner group size month date time 
+
+		/* Anzeige der Informationen */
+		SAY "Line"||i||": "||line
+		SAY "Line"||i||": "||name||"("||size||")"
+		SAY 
+	END
+END
+ELSE DO 
+	SAY "Problem: Timeout beim Warten auf '" || prompt || "'"
+END
+
+
+EXIT

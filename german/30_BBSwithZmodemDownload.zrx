@@ -1,0 +1,75 @@
+/*REXX*/
+
+/* Dieses Beispiel ruft eine hypothetische Mailbox an und laedt
+   eine Datei mit Neuigkeiten, um zu demonstrieren, wie mit REXX
+   eine Mailbox (oder jede andere Gegenstelle) angerufen und von
+   dort ein Dateitransfer initiiert wird. */
+
+
+/* Verbindung mit einem Adressbucheintrag herstellen */
+ZocAutoConnect "daily-news-bbs"
+
+/* Eine globable Erfolgs-Variable (Startwert 0 solange bis die Datei geladen wurde */
+SUCCESS=0
+
+/* Warte maximal 60 Sekunden auf eine Willkommens-Meldung */
+Call ZocTimeout 60 
+
+
+x= ZocWait("Welcome")
+IF X\=640 THEN DO   /* OK, Verbindung ist hergestellt */
+    /* automatischer ZModem Transfer wird abgeschaltet (wir starten
+       den Transfer durch unser Script per ZocDownload Befehl) */
+    Call ZocSetOption "ZAutoDownload=no"  
+
+    /* Warte maximal 20 Sekunden auf Erscheinen des Logineingabe */
+    Call ZocTimeout 20 
+
+    /* Username Abfrage beantworten */
+    x= ZocWait("Username:")
+    IF X==640 THEN SIGNAL done /* timeout fehler => done */
+    Call ZocSend "harryp^M"
+
+    /* Passowrt Abfrage beantworten */
+    x= ZocWait("Password:")
+    IF X==640 THEN SIGNAL done /* timeout fehler => done */
+    Call ZocSend "alohomora^M"
+
+    /* Auf das Menue warten, das uns ermoeglicht, den Download zu starten */
+    x= ZocWait("Choice >") 
+    IF X==640 THEN SIGNAL done  /* timeout fehler => done */
+
+    /* "D(ownload)" aus dem Menue der Mailbox auswaehlen, um den Transfer
+        aus Sicht der Gegenstelle zu starten */
+    Call ZocSend "D^M"  
+
+    x= ZocWait("File >")   /* Die Mailbox fragt nach dem gewuenschten Dateinamen */
+    IF X==640 THEN SIGNAL done  /* timeout fehler => done */
+
+    Call ZocSend "DAILYNEWS.ZIP^M"
+
+    /* Die Gegenstelle beginnt nun mit Senden der Datei, deshalb starten wie auf ZOC-Seite
+       den ZModem Transfer */
+    x= ZocDownload("ZMODEM", "C:\DAILYFILES")
+    IF x=="##OK##" THEN DO         
+        SUCCESS=1	
+    END
+
+    Call ZocWait "Choice >"
+    Call ZocSend "X^M"
+    Call ZocDelay 2
+
+    Call ZocDisconnect
+END
+
+
+/* Wir landen hier bei einem ZocDisconnect oder einem SIGNAL done Befehl */
+:DONE
+
+/* Anhand der globalen Variable erkennen wir, ob die Uebertragung erfolgreich war */
+IF success==1 THEN DO 
+    Call ZocMsgBox "Alles bestens!"
+END
+
+EXIT 
+

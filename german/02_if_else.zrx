@@ -1,0 +1,34 @@
+/* REXX: HIER WIRD GEZEIGT, WIE MIT REXX ENTSCHEIDUNGEN PROGRAMMIERT WERDEN */
+
+
+/* Aufruf einer ZOC-Erweiterung, siehe Hilfe-Menue, "ZOC REXX Befehle" */
+Call ZocCls   
+
+
+/* Als erstes wird ein Fenster mit Auswahl angezeigt */
+/* (Aufruf einer ZOC-Erweiterung als Funktion, Ergebnis wird in Variable gespeichert) */
+answer= ZocRequest("Gefaellt dir ZOC?", "JA", "NEIN")   
+
+
+/* Dies ist eine Entscheidung mit nur einer Alternative */
+/* (siehe "Die REXX Sprache (engl.)", Abschnitt "Instructions" und "Operators") */
+IF answer="##CANCEL##" THEN DO
+    SIGNAL endit    /* als Ende springen, aehnlich GOTO in Basic */
+END
+
+
+/* Das ist eine Entscheidung mit zwei Alternativen */
+IF answer="JA" THEN DO 
+    SAY "Schön zu hören!"
+END
+ELSE DO 
+    /* ANSWER=Nein */
+    SAY "Das ist eine seltsame Antwort!"
+    SAY "(vielleicht hast Du es mit HyperTerminal verwechselt)"
+END
+
+
+endit:    /* Hier landet der SIGNAL-Befehl von oben */
+
+EXIT
+

@@ -1,0 +1,19 @@
+/*REXX*/
+
+/* Senden eines Textes an alle Sessions in allen offenen Registern */
+
+
+text= ZocAsk("Befehl zum Ausfuehren in allen Sessions:")
+IF text\="##CANCEL##" THEN DO
+
+  n= ZocSessionTabs("GETCOUNT")
+
+  /* on all tabs */  
+  DO i=0 TO n-1
+    CALL ZocSessionTabs "SEND", i, text||"^M"
+
+    /* some debug output */
+    name= ZocSessionTabs("GETNAME", i)
+    SAY "Sent "||text||" to "||name
+  END
+END 

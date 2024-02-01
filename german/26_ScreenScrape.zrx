@@ -1,0 +1,49 @@
+/*REXX*/
+
+-- Dieses Beispiel liest Daten direkt aus dem Bildschirm aus
+
+-- wir nehmen an, dass ein Host Daten an uns zur lokalen Verarbeitung
+-- zwischen zwei Tags "[DATA]" und "[/DATA]" sendet, und es eine
+-- AutoAktion im Verbindungsprofil gibt, welche dieses Skript startet,
+-- sobald der Text "[/DATA]" empfangen wurde.
+
+
+-- wir geben ZOC kurz Zeit, um die die Sequenz tatsaechlich in den Bildschirm
+-- zu schreiben (eine AutoAktion wird bereits beim Datenempfang vom Host getriggert)
+CALL ZocDelay 0.25
+
+-- zur Demonstration lesen wir einfach die aktuelle Zeile (die Zeile in der sich der Cursor
+-- befindet) aus dem Bildschirm aus
+-- where the cursor is) from the screen
+x= ZocGetInfo("CURSOR-X")
+y= ZocGetInfo("CURSOR-Y")
+s= ZocGetScreen(0,y,80)
+
+CALL ZocMsgBox "Cursor bei "||x||" in Zeile "||y||" enthaelt Text "s
+
+
+-- auslesen des gesamten Bildschirms zwischen [DATA] and [/DATA]
+cx= ZocGetInfo("SCREENWIDTH")
+cy= ZocGetInfo("SCREENHEIGHT")
+s= ZocGetScreen(0,0,cx*cy)
+
+data= " (nicht gefunden) "
+sx1= POS("[DATA]", s)
+sx2= POS("[/DATA]", s)
+
+-- gegebenfalls ist die Ausgabe von Debuginformation hilfreich
+-- CALL ZocMsgBox LENGTH(s) sx1 sx2
+
+IF sx1>0 & sx2>0 & sx1<sx2 THEN DO
+	data= SUBSTR(s, sx1+6)
+	data= LEFT(data, sx2-sx1-6)
+END
+
+-- Ergebnis anzeigen
+CALL ZocMsgBox "data --->"||data||"<--"
+
+-- als Beispiel wird der empfangene Text als Befehl durch eine Shell ausgefuehrt
+-- Call ZocShell data
+
+EXIT
+

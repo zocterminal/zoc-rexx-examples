@@ -1,0 +1,56 @@
+/* REXX */
+
+
+-- Dieses Programm fragt vom Benutzer eine Zahl ab. Diese Abfrage wird 
+-- in einer Prozedur durchgefuehrt, die den Wert in einem globale Variable 
+-- mit dem Namen 'input_number' speichert. 
+
+CALL ZAHL_EINGABE
+
+
+-- Eine Funktion ueberprueft nun, ob diese Zahl durch irgend eine 
+-- andere Zahl teilbar ist. 
+IF HAT_TEILER(input_number)=0 THEN DO 
+    SAY input_number||" ist eine Primzahl!"
+END
+ELSE DO 
+    SAY input_number||" ist keine Primzahl!"
+END
+
+EXIT
+
+
+
+
+/************************************************************************/
+/* ZAHL_EINGABE ist eine Prozedur. Sie hat Zugriff auf die Variablen    */
+/* des aufrufenden Programms. Dies kann auch eleganter geloest werden   */
+/* (siehe Beispiel 08).                                                 */
+/************************************************************************/
+ZAHL_EINGABE:
+    input_number= ZocAsk("Bitte eine Zahl (bis 1000) eingeben")
+    RETURN
+
+
+
+/************************************************************************/
+/* HAT_TEILER ist eine Funktion. Das Wort PROCEDURE wird angehaengt, um */
+/* der Funktion eine eigene Variablenumgebung zuzuteilen. Der Wertaus-  */
+/* tausch zum aufrufenden Programm wird durch Argumentuebergabe und     */
+/* RETURN-Rueckgabewert durchgefuehrt.                                  */
+/************************************************************************/
+HAT_TEILER: PROCEDURE 
+    /* Das erste (und einzige) Argument abholen */
+    z= ARG(1)
+    zocresult= 0
+
+    DO i=2 TO z-1
+        IF (z//i)=0 THEN DO
+            /* i-Schleife verlassen, wenn i ein Teiler von z ist */
+            zocresult= 1
+            LEAVE i
+        END 
+    END
+
+    RETURN zocresult
+

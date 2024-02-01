@@ -1,0 +1,46 @@
+/*******************************************************
+** AUTORESPONSE
+********************************************************
+** 
+** Mit der Funktion ZocRespond können automatische
+** Antworten auf eingehende Texte programmiert werden.
+** Diese Responds werden innerhalb ZocDelay und ZocWait
+** ueberprueft. 
+** 
+** Die Anzahl von Responds ist auf 16 beschraenkt. Die
+** Laenge darf 80 Zeichen nicht überschreiten.
+** 
+** Diese Beispiel loggt sich in eine Mailbox ein und
+** ueberspringt beliebigen Begruessungstext (es wird
+** davon ausgegangen, dass dabei 'Weiter mit RETURN'
+** bei jedem Seitenende gesendet wird).
+** 
+** Die ist allerdings nicht der normale Weg, um sich
+** mit ZOC automatisch einzuloggen. Es ist nur als
+** Beispiel gedacht.
+** 
+*/
+
+
+/* Einige Responds setzen, um Login und Eingangstext zu beantworten */
+CALL ZocRespond "Name", "ZOC^M"
+CALL ZocRespond "Passwort", "GEHEIM^M"
+CALL ZocRespond "Weiter mit RETURN", "^M"
+
+/* Mailbox anwaehlen (hier ohne BUSY- und ERROR-Abfrage) */
+CALL ZocConnect "TELNET!ancient-bbs.somewhere.com"
+
+/* Auf das Hauptmenü warten (der Rest wird von den Responds erledigt) */
+CALL ZocTimeout 3600
+CALL ZocWait "HAUPTMENUE>"
+
+/* Nach dem Einloggen muessen die Responds wieder geloescht werden */
+CALL ZocRespond "Name"
+CALL ZocRespond "Passwort"
+CALL ZocRespond "Weiter mit RETURN"
+
+/* im Hauptmenue "2" und Enter senden  */
+CALL ZocSend "2^M"
+
+EXIT
+
