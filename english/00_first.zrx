@@ -1,0 +1,24 @@
+/* REXX: first sample without all the explanations */
+
+-- clear the screen
+CALL ZocCls   
+
+
+-- set a variable 
+who= "World"
+
+
+-- output text and variable via string concatenation operator  || 
+CALL ZocWriteln "Hello "||who||"!"
+
+
+-- Ask user for his/her name
+who= ZocAsk("What is your name")   
+
+
+-- print a friendly greeting
+SAY "Hello "||who||"!"
+
+
+EXIT
+
