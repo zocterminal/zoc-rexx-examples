@@ -7,11 +7,13 @@ CALL ZocReceiveBuf 1000
 
 
 -- Send tty <enter> 
--- (assuming you are connected to a Linux shell this will output your /dev/tty)
+-- (assuming you are connected to a Linux shell this will output 
+-- the tty you're on, e.g. "/dev/ttys000")
 CALL ZocSend "tty^M"
 
 
--- set a max waiting time of 3 seconds for the ZocWait command (below) 
+-- set a max time which to wait for the output from the tty
+-- command to  3 seconds (this is for the ZocWait command below) 
 CALL ZocTimeout 3
 
 

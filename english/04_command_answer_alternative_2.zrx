@@ -6,7 +6,8 @@
 CALL ZocSend "tty^M"
 
 
--- set a max waiting time of 3 seconds for the ZocWait command (below) 
+-- set a max time which to wait for the output from the tty
+-- command to  3 seconds (this is for the ZocWait command below) 
 CALL ZocTimeout 3
 
 
