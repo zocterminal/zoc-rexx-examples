@@ -22,8 +22,8 @@ the response.
 
 # Docs Site
 The docs site for this project is [here](https://zocterminal.github.io/zoc-rexx-examples/).
-Further documentation for ZOC Terminal can be found See also <a href="https://www.emtec.com/zoc/documents.html" target="_blank">Here</a>. You may also be interested in 
-[introduction to ZOC REXX](https://www.emtec.com/zoc/onlinehelp.html?t=10610).
+Further documentation for ZOC Terminal can be found <a href="https://www.emtec.com/zoc/documents.html" target="_blank">here</a>. You may also be interested in 
+[Introduction to ZOC REXX](https://www.emtec.com/zoc/onlinehelp.html?t=10610).
  
 # About ZOC
 ZOC Terminal is a [ssh-client](https://www.ssh-client.com/) and [terminal emulator](https://www.emtec.com/zoc/terminal-emulator.html) that allows client side scripting. 
